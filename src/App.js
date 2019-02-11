@@ -1,91 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { getPrediction } from "./helpers.js";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import Gameplay from "./Gameplay";
+import HighScore from "./HighScore";
 
-function Controls({ theCanvas, model, labels }) {
-  let [prediction, setPrediction] = useState(""); // Sets default label to empty string.
-
-  useEffect(() => {
-    console.log(prediction);
-  });
-
+export default function App() {
   return (
-    <div>
-      <button
-        onClick={() => {
-          const canvas = theCanvas.current;
-          const ctx = canvas.getContext("2d");
-          ctx.fillRect(0, 0, canvas.height, canvas.width);
-        }}
-      >
-        Clear the canvas.
-      </button>
-      <button
-        onClick={() =>
-          getPrediction(theCanvas, model).then(prediction =>
-            setPrediction(labels[prediction[0]])
-          )
-        }
-      >
-        Predict the drawing.
-      </button>
-    </div>
+    <Router>
+      <>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/game">Game</Link>
+          </li>
+          <li>
+            <Link to="/highscore">Hall of Fame</Link>
+          </li>
+        </ul>
+        <Route exact path="/" component={Home} />
+        <Route path="/game" component={Gameplay} />
+        <Route path="/highscore" component={HighScore} />
+      </>
+    </Router>
   );
 }
 
-const Canvas = React.forwardRef((props, ref) => {
-  let mouseDown = false;
-  let lastX;
-  let lastY;
-
-  function drawLine(canvas, x, y, lastX, lastY) {
-    let context = canvas.getContext("2d");
-
-    context.strokeStyle = "#000000";
-    context.lineWidth = 12;
-    context.lineJoin = "round";
-
-    context.beginPath();
-    context.moveTo(lastX, lastY);
-    context.lineTo(x, y);
-    context.closePath();
-    context.stroke();
-
-    return [x, y];
-  }
-
-  const handleMouseup = () => {
-    mouseDown = false;
-    [lastX, lastY] = [undefined, undefined];
-  };
-
-  const handleMousemove = e => {
-    const rect = e.target.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    if (mouseDown) {
-      [lastX, lastY] = drawLine(e.target, x, y, lastX, lastY);
-    }
-  };
-
-  useEffect(() => {
-    const canvas = ref.current;
-    const context = canvas.getContext("2d");
-
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, canvas.height, canvas.width);
-  });
-
+function Home() {
   return (
-    <canvas
-      height={300}
-      width={300}
-      ref={ref}
-      onMouseDown={() => (mouseDown = true)}
-      onMouseUp={handleMouseup}
-      onMouseMove={e => handleMousemove(e)}
-    />
+    <div>
+      <h1>Home</h1>
+    </div>
   );
-});
-
-export { Canvas, Controls };
+}

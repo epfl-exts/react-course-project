@@ -13,7 +13,7 @@ function preprocessCanvas(canvas) {
 }
 
 export function getPrediction(theCanvas, model) {
-  const tensor = preprocessCanvas(theCanvas.current);
+  const tensor = preprocessCanvas(theCanvas);
   return model
     .then(loadedModel => loadedModel.predict(tensor).data())
     .then(async prediction => await tf.argMax(prediction).data()); // returns an int32 containing the predicted class
