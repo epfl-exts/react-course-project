@@ -1,29 +1,6 @@
 import React, { useContext, useEffect, useState, useReducer } from "react";
-import * as tf from "@tensorflow/tfjs";
-import { getPrediction } from "./helpers.js";
-
-function roundsReducer(state, action) {
-  switch (action.type) {
-    case "increment":
-      return { round: state.round + 1 };
-    case "reset":
-      return { round: 0 };
-    default:
-      return { round: state };
-  }
-}
-
-function useConfirmation(prediction, incrementRound) {
-  console.log(`Correct: ${prediction}`);
-
-  return setTimeout(function() {
-    incrementRound();
-  }, 3000);
-}
-
-function useWrongPrediction(prediction) {
-  console.log(`Wrong! ${prediction}`);
-}
+import { Link } from "react-router-dom";
+import Canvas from "./Canvas.js";
 
 export default function Gameplay() {
   const labels = require("./labels.json");
@@ -39,105 +16,63 @@ export default function Gameplay() {
   let ref = React.createRef();
 
   useEffect(() => {
-    console.log(currentRound);
+    console.log(labels[currentRound]);
   });
 
   return (
-    <div>
-      <h1>Gameplay</h1>
+    <div className="nes-container is-dark with-title">
+      <h2 className="title">Draw a {labels[currentRound]}</h2>
       <Canvas ref={ref} checkPrediction={checkPrediction} />
+      <button
+        className="nes-btn is-warning"
+        onClick={() => {
+          const canvas = ref.current;
+          const ctx = canvas.getContext("2d");
+          ctx.fillRect(0, 0, canvas.height, canvas.width);
+        }}
+        style={{ display: "block" }}
+      >
+        Clear canvas
+      </button>
+      <Link to="/highscore" className="nes-btn">
+        Hall of Fame
+      </Link>
     </div>
   );
 }
 
-const Canvas = React.forwardRef((props, ref) => {
-  const model = tf.loadModel("./model/model.json");
-
-  let mouseDown = false;
-  let lastX;
-  let lastY;
-
-  function drawLine(canvas, x, y, lastX, lastY) {
-    let context = canvas.getContext("2d");
-
-    context.strokeStyle = "#000000";
-    context.lineWidth = 12;
-    context.lineJoin = "round";
-
-    context.beginPath();
-    context.moveTo(lastX, lastY);
-    context.lineTo(x, y);
-    context.closePath();
-    context.stroke();
-
-    return [x, y];
+function roundsReducer(state, action) {
+  switch (action.type) {
+    case "increment":
+      const nextRound = state + 1;
+      console.log(nextRound);
+      return { round: nextRound };
+    case "reset":
+      return { round: 0 };
+    default:
+      return { round: state };
   }
+}
 
-  const handleMouseup = e => {
-    mouseDown = false;
-    [lastX, lastY] = [undefined, undefined];
-    getPrediction(e.target, model).then(prediction =>
-      props.checkPrediction(prediction)
-    );
-  };
+function useConfirmation(prediction, incrementRound) {
+  console.log(`Correct: ${prediction}`);
+  console.log(incrementRound);
+  return setTimeout(function() {
+    incrementRound();
+  }, 3000);
+}
 
-  const handleMousemove = e => {
-    const rect = e.target.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    if (mouseDown) {
-      [lastX, lastY] = drawLine(e.target, x, y, lastX, lastY);
-    }
-  };
-
-  useEffect(() => {
-    const canvas = ref.current;
-    const context = canvas.getContext("2d");
-
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, canvas.height, canvas.width);
-  });
-
-  return (
-    <canvas
-      height={300}
-      width={300}
-      ref={ref}
-      onMouseDown={() => (mouseDown = true)}
-      onMouseUp={e => handleMouseup(e)}
-      onMouseMove={e => handleMousemove(e)}
-    />
-  );
-});
-
-// function Controls({ theCanvas, model, labels }) {
-//   let [prediction, setPrediction] = useState(""); // Sets default label to empty string.
-
-//   useEffect(() => {
-//     console.log(prediction);
-//   });
-
-//   return (
-//     <div>
-//       <button
-//         onClick={() => {
-//           const canvas = theCanvas.current;
-//           const ctx = canvas.getContext("2d");
-//           ctx.fillRect(0, 0, canvas.height, canvas.width);
-//         }}
-//       >
-//         Clear the canvas.
-//       </button>
-//       <button
-//         onClick={() =>
-//           getPrediction(theCanvas, model).then(prediction =>
-//             setPrediction(labels[prediction[0]])
-//           )
-//         }
-//       >
-//         Predict the drawing.
-//       </button>
-//     </div>
-//   );
-// }
+function useWrongPrediction(prediction) {
+  console.log(`Wrong! ${prediction}`);
+  // <div
+  //   className="nes-balloon from-left"
+  //   style={{
+  //     color: "black",
+  //     position: "absolute",
+  //     top: "50px",
+  //     right: "50px"
+  //   }}
+  // >
+  //   <p>{labels[currentRound]}</p>
+  // </div>;
+}

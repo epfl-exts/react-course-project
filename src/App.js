@@ -6,30 +6,19 @@ import HighScore from "./HighScore";
 export default function App() {
   return (
     <Router>
-      <>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/game">Game</Link>
-          </li>
-          <li>
-            <Link to="/highscore">Hall of Fame</Link>
-          </li>
-        </ul>
+      <div className="content">
         <Route exact path="/" component={Home} />
         <Route path="/game" component={Gameplay} />
         <Route path="/highscore" component={HighScore} />
-      </>
+      </div>
     </Router>
   );
 }
 
 function Home() {
   return (
-    <div>
-      <h1>Home</h1>
-    </div>
+    <Link to="/game" className="nes-btn">
+      Play game
+    </Link>
   );
 }
