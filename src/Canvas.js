@@ -1,10 +1,6 @@
 import React, { useEffect } from "react";
-import * as tf from "@tensorflow/tfjs";
-import { getPrediction } from "./helpers.js";
 
-const Canvas = React.forwardRef((props, ref) => {
-  const model = tf.loadModel("./model/model.json");
-
+function Canvas({ forwardRef, onDraw, ...props }) {
   let mouseDown = false;
   let lastX;
   let lastY;
@@ -28,9 +24,6 @@ const Canvas = React.forwardRef((props, ref) => {
   const handleMouseup = e => {
     mouseDown = false;
     [lastX, lastY] = [undefined, undefined];
-    getPrediction(e.target, model).then(prediction =>
-      props.checkPrediction(prediction)
-    );
   };
 
   const handleMousemove = e => {
@@ -44,7 +37,7 @@ const Canvas = React.forwardRef((props, ref) => {
   };
 
   useEffect(() => {
-    const canvas = ref.current;
+    const canvas = forwardRef.current;
     const context = canvas.getContext("2d");
 
     context.fillStyle = "#ffffff";
@@ -52,20 +45,21 @@ const Canvas = React.forwardRef((props, ref) => {
   });
 
   return (
-    <div
-      className="nes-container is-rounded"
-      style={{ display: "inline-block" }}
-    >
-      <canvas
-        height={300}
-        width={300}
-        ref={ref}
-        onMouseDown={() => (mouseDown = true)}
-        onMouseUp={e => handleMouseup(e)}
-        onMouseMove={e => handleMousemove(e)}
-      />
-    </div>
+    <DrawableCanvas
+      ref={forwardRef}
+      onMouseDown={() => (mouseDown = true)}
+      onMouseMove={e => handleMousemove(e)}
+      onMouseUp={e => {
+        handleMouseup(e);
+        onDraw(e);
+      }}
+      {...props}
+    />
   );
-});
+}
+
+const DrawableCanvas = React.forwardRef((props, ref) => (
+  <canvas {...props} ref={ref} />
+));
 
 export default Canvas;

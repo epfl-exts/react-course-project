@@ -1,28 +1,44 @@
 import React, { useContext, useEffect, useState, useReducer } from "react";
 import { Link } from "react-router-dom";
+import * as tf from "@tensorflow/tfjs";
+import { getPrediction } from "./helpers.js";
 import Canvas from "./Canvas.js";
 
-export default function Gameplay() {
-  const labels = require("./labels.json");
-  const [currentRound, setRound] = useReducer(roundsReducer, 0);
+// const checkPrediction = prediction =>
+//   prediction === currentRound ? true : false;
 
-  const checkPrediction = prediction => {
-    const predictionValue = prediction[0];
-    return predictionValue === currentRound
-      ? useConfirmation(predictionValue, () => setRound("increment"))
-      : useWrongPrediction(predictionValue);
-  };
+export default function Gameplay() {
+  const model = tf.loadModel("./model/model.json");
+
+  const labels = require("./labels.json");
+  const [currentRound, setRound] = useReducer(roundsReducer, 4);
 
   let ref = React.createRef();
 
   useEffect(() => {
-    console.log(labels[currentRound]);
+    console.log(`Current round: ${labels[currentRound]}`);
   });
 
   return (
     <div className="nes-container is-dark with-title">
       <h2 className="title">Draw a {labels[currentRound]}</h2>
-      <Canvas ref={ref} checkPrediction={checkPrediction} />
+      <div
+        className="nes-container is-rounded"
+        style={{ display: "inline-block" }}
+      >
+        <Canvas
+          forwardRef={ref}
+          onDraw={e =>
+            getPrediction(e.target, model).then(prediction => {
+              parseInt(prediction) === currentRound
+                ? console.log(true) // do something positive
+                : console.log(false); // do something negative
+            })
+          }
+          height={300}
+          width={300}
+        />
+      </div>
       <button
         className="nes-btn is-warning"
         onClick={() => {
@@ -45,7 +61,6 @@ function roundsReducer(state, action) {
   switch (action.type) {
     case "increment":
       const nextRound = state + 1;
-      console.log(nextRound);
       return { round: nextRound };
     case "reset":
       return { round: 0 };
@@ -54,9 +69,7 @@ function roundsReducer(state, action) {
   }
 }
 
-function useConfirmation(prediction, incrementRound) {
-  console.log(`Correct: ${prediction}`);
-  console.log(incrementRound);
+function useConfirmation(incrementRound) {
   return setTimeout(function() {
     incrementRound();
   }, 3000);
