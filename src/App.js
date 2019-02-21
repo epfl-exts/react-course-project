@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import Gameplay from "./Gameplay";
+import Game from "./Game";
 import HighScore from "./HighScore";
 
 export default function App() {
@@ -8,7 +8,7 @@ export default function App() {
     <Router>
       <div className="content">
         <Route exact path="/" component={Home} />
-        <Route path="/game" component={Gameplay} />
+        <Route path="/game" component={Game} />
         <Route path="/highscore" component={HighScore} />
       </div>
     </Router>

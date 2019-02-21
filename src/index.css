@@ -19,3 +19,18 @@ code {
   max-width: 800px;
   padding: 2em;
 }
+
+.flex-wrapper {
+  display: flex;
+}
+
+.instructions-wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.5rem;
+  margin: 14px 8px;
+}
+
+.typed {
+  flex-grow: 1;
+}

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-function Canvas({ forwardRef, onDraw, ...props }) {
+const Canvas = ({ forwardRef, onDraw, ...props }) => {
   let mouseDown = false;
   let lastX;
   let lastY;
