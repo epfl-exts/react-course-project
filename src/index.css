@@ -27,10 +27,16 @@ code {
 .instructions-wrapper {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
   padding: 1rem 1.5rem;
   margin: 14px 8px;
 }
 
 .typed {
   flex-grow: 1;
+}
+
+canvas {
+  display: inline-block;
+  min-width: 300px;
 }
